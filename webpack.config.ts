@@ -1,6 +1,7 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import WorkboxPlugin from 'workbox-webpack-plugin';
 
 const isProduction = process.env['NODE_ENV'] === 'production';
 
@@ -15,6 +16,13 @@ if (isProduction) {
         new MiniCssExtractPlugin(),
     );
 }
+
+plugins.push(
+    new WorkboxPlugin.GenerateSW({
+        clientsClaim: true,
+        skipWaiting: true,
+    }),
+);
 
 let devServer = undefined;
 if (!isProduction) {
