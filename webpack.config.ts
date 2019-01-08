@@ -21,6 +21,7 @@ plugins.push(
     new WorkboxPlugin.GenerateSW({
         clientsClaim: true,
         skipWaiting: true,
+        importScripts: ['sw-push.bundle.js'],
     }),
 );
 
@@ -35,7 +36,10 @@ if (!isProduction) {
 
 const config = {
     mode: isProduction ? 'production' : 'development',
-    entry: './src/index.tsx',
+    entry: {
+        main: './src/index.tsx',
+        'sw-push': './src/sw-push.ts',
+    },
     output: {
         filename: '[name].bundle.js',
         chunkFilename: '[id].js',
