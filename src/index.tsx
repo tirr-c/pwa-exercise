@@ -5,8 +5,27 @@ if ('serviceWorker' in navigator) {
     navigator
         .serviceWorker
         .register('service-worker.js')
-        .then(_registration => {
+        .then(registration => {
             console.log('Service Worker registered');
+            return registration.pushManager
+                .getSubscription()
+                .then(async subscription => {
+                    if (subscription != null) {
+                        return subscription;
+                    }
+                    const resp = await fetch(new URL('/vapid', PUSH_BASE_URL).toString());
+                    const vapid = new Uint8Array(await resp.arrayBuffer());
+                    return await registration
+                        .pushManager
+                        .subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: vapid,
+                        });
+                });
+        })
+        .then(subscription => {
+            // TODO: Send subscription to the server
+            console.log('Push subscribed');
         })
         .catch(err => {
             console.error(err);

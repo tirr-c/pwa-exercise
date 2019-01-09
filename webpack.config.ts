@@ -1,4 +1,5 @@
 import path from 'path';
+import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import WorkboxPlugin from 'workbox-webpack-plugin';
@@ -13,6 +14,11 @@ const plugins = [
 
 if (isProduction) {
     plugins.push(
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+            'PRODUCTION': JSON.stringify(isProduction),
+            'PUSH_BASE_URL': JSON.stringify(''),
+        }),
         new MiniCssExtractPlugin(),
     );
 }
