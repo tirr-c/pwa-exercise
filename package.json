@@ -1,7 +1,9 @@
 {
   "name": "pwa-test",
   "version": "0.0.0",
+  "repository": "https://github.com/tirr-c/pwa-exercise.git",
   "description": "PWA Exercise",
+  "author": "Wonwoo Choi",
   "license": "MIT",
   "private": true,
   "scripts": {

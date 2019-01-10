@@ -7,18 +7,19 @@ import WorkboxPlugin from 'workbox-webpack-plugin';
 const isProduction = process.env['NODE_ENV'] === 'production';
 
 const plugins = [
+    new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'PRODUCTION': JSON.stringify(isProduction),
+        'PUSH_BASE_URL': JSON.stringify('http://localhost:8000'),
+    }),
     new HtmlWebpackPlugin({
         title: 'PWA Exercies',
+        chunks: ['main'],
     }),
 ];
 
 if (isProduction) {
     plugins.push(
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-            'PRODUCTION': JSON.stringify(isProduction),
-            'PUSH_BASE_URL': JSON.stringify(''),
-        }),
         new MiniCssExtractPlugin(),
     );
 }
@@ -59,7 +60,7 @@ const config = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.sass$/,
+                test: /\.scss$/,
                 use: [
                     isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
                     'css-loader',

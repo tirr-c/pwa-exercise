@@ -1,0 +1,27 @@
+{
+  "name": "push-server",
+  "version": "0.0.0",
+  "repository": "https://github.com/tirr-c/pwa-exercise.git",
+  "author": "Wonwoo Choi",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "generate-vapid-keys": "web-push generate-vapid-keys --json"
+  },
+  "dependencies": {
+    "@koa/cors": "^2.2.3",
+    "koa": "^2.6.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "web-push": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.0.48",
+    "@types/koa-bodyparser": "^4.2.1",
+    "@types/koa-router": "^7.0.37",
+    "@types/koa__cors": "^2.2.3",
+    "@types/web-push": "^3.3.0",
+    "typescript": "^3.2.2"
+  }
+}
