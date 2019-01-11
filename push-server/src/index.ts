@@ -6,6 +6,9 @@ import bodyparser from 'koa-bodyparser';
 import Router from 'koa-router';
 import webpush from 'web-push';
 
+interface SubscriptionState {
+}
+
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8000;
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || '';
 
@@ -27,6 +30,19 @@ function stringToSub(subKey: string): webpush.PushSubscription {
     };
 }
 
+function serializeSubMap(subMap: Map<string, SubscriptionState>): string {
+    const obj: { [key: string]: SubscriptionState; } = {};
+    for (const [key, value] of subMap.entries()) {
+        obj[key] = value;
+    }
+    return JSON.stringify(obj);
+}
+
+function deserializeSubMap(rawSubMap: string): Map<string, SubscriptionState> {
+    const obj: { [key: string]: SubscriptionState; } = JSON.parse(rawSubMap);
+    return new Map(Object.entries(obj));
+}
+
 async function main() {
     let vapidKeys: webpush.VapidKeys;
     try {
@@ -46,9 +62,14 @@ async function main() {
         vapidKeys.privateKey,
     );
 
-    const binaryPublicKey = Buffer.from(vapidKeys.publicKey.replace(/\-/g, '+').replace(/_/g, '/'), 'base64');
+    let subMap = new Map();
+    try {
+        const rawSubMap = await fs.promises.readFile('subscribers.json', { encoding: 'utf8' });
+        subMap = deserializeSubMap(rawSubMap);
+    } catch (_) {
+    }
 
-    const subMap = new Map();
+    const binaryPublicKey = Buffer.from(vapidKeys.publicKey.replace(/\-/g, '+').replace(/_/g, '/'), 'base64');
 
     const app = new Koa();
     const router = new Router();
@@ -61,7 +82,7 @@ async function main() {
         ctx.body = vapidKeys.publicKey;
     });
 
-    router.post('/register', (ctx, next) => {
+    router.post('/register', async (ctx, next) => {
         const body = ctx.request.body;
         ctx.assert('current' in body, 400);
         const currentKey = subToString(body.current);
@@ -72,8 +93,14 @@ async function main() {
                 registerData = subMap.get(previousKey);
                 subMap.delete(previousKey);
             }
+        } else if (subMap.has(currentKey)) {
+            registerData = subMap.get(currentKey);
         }
         subMap.set(currentKey, registerData);
+        await fs.promises.writeFile('subscribers.json', serializeSubMap(subMap), {
+            encoding: 'utf8',
+            mode: 0o600,
+        });
         ctx.status = 201;
     });
 
